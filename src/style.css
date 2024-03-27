@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components{
+   .weather_card{
+    @apply  flex flex-row gap-1 items-center h-32 rounded p-4 shadow-xl min-w-[100%] justify-center text-blue-950 text-2xl text-center
+      }
+    
+    .history{
+      @apply gap-2
+    }
+
+    .history>span{
+      @apply underline cursor-pointer text-gray-600 text-xs 
+      /* after:content-[','] */
+    }
+
+    }
+
+
+.plus{
+  color:mediumaquamarine;
+  transition: all 0.5s ease;
+  transform: scale(125%);
+}
+
+.plus:hover{
+  transform: scale(135%);
+}
+.minus{
+  color: darksalmon;
+  transition: all 0.5s ease;
+}
+
+.fixed-town:hover .minus{
+  opacity: 1;
+  z-index: 10;
+  transform: scale(125%);
+}
+
+.fixed-town:hover .fixed-town-data{
+  transition: all 0.5s ease;
+  opacity: 0.4;
+}
+
+.material-symbols-outlined{
+  cursor: pointer;
+}
+
+.expand{
+  transform: rotate(180deg);
+  transition: ease 0.3s
+}
+
+.expand:hover{
+  transform: translateY(5px) rotate(180deg);
+
+}
+
+#town_widget{
+  transition: all ease 0.7s;
+}

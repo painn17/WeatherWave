@@ -1,0 +1,6 @@
+@layer components{
+
+.btn {
+@apply Obg-purple-600 hover:bg-violet-600 text-white py-3 px-5
+rounded-1g transition font-medium leading-normal inline-flex
+justify-center items-center;}}
