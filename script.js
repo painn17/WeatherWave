@@ -1,7 +1,5 @@
 import { api } from "./api.js";
 
-const cityapi = "b61f53a6531e82719a178b048c509161";
-
 let current_town = "Лондон"
 let current_lang = "ru";
 
