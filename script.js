@@ -1,32 +1,5 @@
 import { api } from "./api.js";
 
-
-// async function get_icons() {
-//   response = await fetch('https://api.figma.com/v1/files/2hpAWTZ5T2flK8Vcm8n9cB', {
-  
-//   method: 'GET',
-//   headers: {
-//     'X-Figma-Token': "figd_MeG3dV4gh9dKp9_xr9lWgycNFoyEzmxE4UPT5R5D",
-//   },
-// });
-
-//   const filesData_Json = await response.json();
-//   const night_icons = filesData_Json.document.children[0].children[0].children
-//   const day_icons = filesData_Json.document.children[0].children[1].children
-//   console.log(day_icons[0].children[0])
-//   const imageURL = "https://api.figma.com/v1/images/" + day_icons[0].children[0].id + "?format=" + day_icons[0].children[0].exportSettings[0].format;
-
-//   document.getElementById('weather-icon').src = imageURL;
-// }
-
-// get_icons();
-
-
-
-// ^  Получение картинок из фигмы ?? Нерабочее вроде
-// |
-
-
 const cityapi = "b61f53a6531e82719a178b048c509161";
 
 let current_town = "Лондон"
