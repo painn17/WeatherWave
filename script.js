@@ -1,4 +1,4 @@
-import { api } from "./api.js";
+import { api } from "./api.js"; // your api key here
 
 let current_town = "Лондон"
 let current_lang = "ru";
@@ -255,20 +255,26 @@ async function getWeatherTemp(town, lang) {
 function save_town_widget(town) {
   console.log(localStorage.getItem('widget'), 'widget on start');
   let temp_storage = []
-    if (town && !localStorage.getItem('widget').includes(town) && code != "404") {
+  let widget = localStorage.getItem('widget')
+  if (town && widget != null && code != "404") {
+    if (!widget.includes(town)) {
       console.log('pushing');
       temp_storage.push(town)
       temp_storage = temp_storage.concat(localStorage.getItem('widget').split(','))
       console.log(temp_storage);
-      localStorage.setItem('widget', temp_storage);
+      localStorage.setItem('widget', temp_storage);}
+      
   }
-    else{console.log('!');}
+  else {
+    console.log('!');
+    localStorage.setItem('widget', '')
+    save_town_widget(town)    
+  }
     
     if (temp_storage.length > 5) {
       temp_storage.shift();
     }
-  
-  console.log(localStorage.getItem('widget').split(','), 'widget on end');
+    console.log(localStorage.getItem('widget'), 'widget on end');
   render_widget();
 }
 
@@ -405,7 +411,7 @@ function history_save(town_name) {
   if (town_name === "fake") {
     if (history != null) {
       let temp_storage
-      temp_storage = localstorage.getitem("history").split(',')
+      temp_storage = localStorage.getItem("history").split(',')
       if (temp_storage.length > 5) {
         temp_storage.shift();
       }
@@ -426,11 +432,11 @@ function history_save(town_name) {
   else if (history != null) {
     
     let temp_storage = []
-    if (town_name && !localstorage.getitem("history").includes(town_name) && code != "404") {
+    if (town_name && !localStorage.getItem("history").includes(town_name) && code != "404") {
       temp_storage.push(town_name)
     }
     else{return 0}
-    temp_storage = temp_storage.concat(localstorage.getitem("history").split(','))
+    temp_storage = temp_storage.concat(localStorage.getItem("history").split(','))
     if (temp_storage.length > 5) {
       temp_storage.shift();
     }
