@@ -1,4 +1,4 @@
-//import { api } from "./api.js";  your api here
+// import { api } from "./api.js"; // your api key here
 
 let current_town = "Лондон"
 let current_lang = "ru";
@@ -405,7 +405,7 @@ function history_save(town_name) {
   if (town_name === "fake") {
     if (history != null) {
       let temp_storage
-      temp_storage = localstorage.getitem("history").split(',')
+      temp_storage = localStorage.getItem("history").split(',')
       if (temp_storage.length > 5) {
         temp_storage.shift();
       }
