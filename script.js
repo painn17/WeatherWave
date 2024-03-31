@@ -1,4 +1,4 @@
-import { api } from "./api.js";
+//import { api } from "./api.js"; // your api here
 
 let current_town = "Лондон"
 let current_lang = "ru";
