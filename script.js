@@ -386,6 +386,7 @@ language.addEventListener("change", () => {
   current_lang = language.value;
   localStorage.setItem(3, current_lang);
   getWeatherTemp(town_data.textContent, language.value)
+  render_widget()
 })
 
 add_town.addEventListener("click", () => {
@@ -399,12 +400,12 @@ add_town.addEventListener("click", () => {
 
 function history_save(town_name) {
 
-
+  let history = localStorage.getItem("history")
 
   if (town_name === "fake") {
-    if (localStorage.getItem(2).length>0) {
+    if (history != null) {
       let temp_storage
-      temp_storage = localStorage.getItem(2).split(',')
+      temp_storage = localstorage.getitem("history").split(',')
       if (temp_storage.length > 5) {
         temp_storage.shift();
       }
@@ -413,27 +414,27 @@ function history_save(town_name) {
     else{console.log("no storage, that's fake");}
   }
 
-  else if (!localStorage.getItem(2).length && code != "404") {
+  else if (history === null && code != "404") {
     let temp_storage = []
     temp_storage.push(town_name)
-    localStorage.setItem(2, temp_storage)
+    localStorage.setItem('history', temp_storage)
     if (temp_storage[0] != undefined) {
       history_render(temp_storage);
     }
 }
 
-  else if (localStorage.getItem(2).length) {
+  else if (history != null) {
     
     let temp_storage = []
-    if (town_name && !localStorage.getItem(2).includes(town_name) && code != "404") {
+    if (town_name && !localstorage.getitem("history").includes(town_name) && code != "404") {
       temp_storage.push(town_name)
     }
     else{return 0}
-    temp_storage = temp_storage.concat(localStorage.getItem(2).split(','))
+    temp_storage = temp_storage.concat(localstorage.getitem("history").split(','))
     if (temp_storage.length > 5) {
       temp_storage.shift();
     }
-    localStorage.setItem(2, temp_storage);
+    localStorage.setItem('history', temp_storage);
     history_render(temp_storage);
   }
 
