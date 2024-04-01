@@ -1,5 +1,7 @@
 import { api } from "./api.js"; // your api key here
 
+let weather_json
+
 let current_town = "Лондон"
 let current_lang = "ru";
 
@@ -19,6 +21,7 @@ let find_button = document.querySelector("#find-button")
 let town_input = document.querySelector("#town-input")
 let expand = document.querySelector(".expand")
 let add_town = document.querySelector("#add_townwidget")
+let loader = document.querySelector(".loader")
 
 let temp_label = document.querySelector("#temp-label")
 let temp_feels_label  = document.querySelector("#temp-feels-label")
@@ -39,6 +42,7 @@ let town_history
 let code;
 let town_widget_container = document.querySelector(".widget_container")
 let fixed_town 
+let weather_icon;
 
 
 let weather_icons_day = [
@@ -102,21 +106,21 @@ let temp_colors = {
 
 history_save("fake");
 
-
+loader.style.display = "block"
 
 //РАЗДЕЛИТЬ fetch и присваивание 
-async function getWeatherTemp(town, lang) { 
+async function fetch_weather(town, lang) {
   code = '';
 
   let response;
   let json;
 
-  let last_town = localStorage.getItem(1)
-  let last_lang = localStorage.getItem(3);
+  let last_town = localStorage.getItem("last_town")
+  let last_lang = localStorage.getItem('lang');
   
   let not_found = "Nothing Found... Maybe try find to?"
 
-  if (lang == "ru" || last_lang == "ru") { 
+  if (lang == "ru" || last_lang == "ru") {
     temp_label.textContent = 'Температура: '
     temp_feels_label.textContent = 'Чувствуется как: '
     wind_speed_label.textContent = 'Скорость ветра: '
@@ -147,9 +151,8 @@ async function getWeatherTemp(town, lang) {
     language.value = "ua"
   }
 
-  try { 
+  try {
     weather_data_container.style.display = "block";
-    weather_container.style.background = "none"
     none_text_label.textContent = ""
     if (!town && last_town) {
       response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${last_town}&appid=${api}&units=metric&lang=${last_lang}`);
@@ -165,8 +168,8 @@ async function getWeatherTemp(town, lang) {
       none_text_label.textContent = "Nothing Found... Maybe try find to?"
     }
   }
-  catch(error) {
-      alert(error)
+  catch (error) {
+    alert(error)
   }
   
 
@@ -180,9 +183,10 @@ async function getWeatherTemp(town, lang) {
     weather_data_container.style.display = "none";
     none_text_label.textContent = "Nothing Found... Maybe try find to?";
   }
-
+  return json
+}
   
-  
+function assign_data(json){
   let temperature = json.main.temp;
   let temp_feels = json.main.feels_like;
   let wind_speed = json.wind.speed;                                                   //ДЕСТРУКТУРИЗИРОВАТЬ
@@ -190,25 +194,13 @@ async function getWeatherTemp(town, lang) {
   let humidity = json.main.humidity;
   let weather_code = json.weather[0].description; 
   let weather_name = json.weather[0].main; 
-  let town_timezone = json.timezone;
-  let weather_icon;
+  // let town_timezone = json.timezone;
   
-  function render_time() {
-    let now = moment().utcOffset(town_timezone / 60);
-      time_label.textContent = now.format("HH:mm");
-      date_label.textContent = now.format("YYYY.MM.DD");
-      time = +now.format("HH")
-      change_image()
-    setTimeout(() => {
-        render_time();
-          }, 60000);
-        }
-
-  render_time();
+  
   
   town_history = document.querySelectorAll(".town_history")
   
-  town ? find_label.textContent = town : find_label.textContent = last_town;
+  json.name ? find_label.textContent = json.name : find_label.textContent = last_town;
   town_data.textContent = json.name;
   weather_data.textContent = weather_code; 
   pressure_data.textContent = pressure;
@@ -218,37 +210,21 @@ async function getWeatherTemp(town, lang) {
   humidity_data.textContent = (humidity);
  
   
-  function change_image() {
-    if (time >= 18 || time <= 6) {
-      weather_icon = weather_icons_night.filter((item) => {
-      return item.main === weather_name
-      
-      })
-    }
-    else if (time > 6 || time < 18) { 
-      weather_icon = weather_icons_day.filter((item) => {
-      return item.main === weather_name
-      
-      })
-    }
-    
-  }
   
-  weather_icon_label.style.background = `url(${weather_icon[0].src}) no-repeat center`
 
 
   if (temperature>=25){
     weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.hot})`;
-  }
-  else if(temperature>14 && temperature<=24){
+      }
+  else if(temperature>14 && temperature<25){
     weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.medium})`;
-  }
+      }
   else if(temperature>4 && temperature<15){
     weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.cold})`;
-  }
+      }
   else if(temperature<=4){
     weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.very_cold})`;
-  }
+      }
   
 }
 
@@ -278,6 +254,35 @@ function save_town_widget(town) {
   render_widget();
 }
 
+function render_time(json) {
+  let now = moment().utcOffset(json.timezone / 60);
+    time_label.textContent = now.format("HH:mm");
+    date_label.textContent = now.format("YYYY.MM.DD");
+    time = +now.format("HH")
+    change_image(json.weather[0].main)
+  setTimeout(() => {
+      render_time(json);
+        }, 60000);
+      }
+
+function change_image(weather_name) {
+    if (time >= 18 || time <= 6) {
+      weather_icon = weather_icons_night.filter((item) => {
+      return item.main === weather_name
+      
+      })
+    }
+    else if (time > 6 || time < 18) { 
+      weather_icon = weather_icons_day.filter((item) => {
+      return item.main === weather_name
+      
+      })
+    }
+    weather_icon_label.style.background = `url(${weather_icon[0].src}) no-repeat center`
+  }
+  
+  
+// ПЕРЕДЕЛАТЬ ПОД fetch_weather
 async function render_widget() {
   let data;
   let temp_storage
@@ -289,7 +294,7 @@ async function render_widget() {
   }
   console.log(temp_storage);
   for (const item of temp_storage) {
-    data = await fetch_widget(item); 
+    data = await fetch_weather(item); 
     console.log(data, 'data');
     town_widget_container.innerHTML +=
       `<div
@@ -313,20 +318,8 @@ async function render_widget() {
   fixed_town = document.querySelectorAll("#fixed_town");
   console.log(fixed_town);
   delete_widget()
-}
+} 
 
-async function fetch_widget(town) {
-  let response;
-  let json;
-  let last_lang = localStorage.getItem(3);
-  try {
-    response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${town}&appid=${api}&units=metric&lang=${last_lang}`);
-    json = await response.json();
-  } catch (error) {
-    alert(error);
-  }
-  return json;
-}
 
 function delete_widget() {
   console.log("delete_widget");
@@ -346,9 +339,11 @@ function delete_widget() {
   });
 }
 
-find_button.addEventListener("click", () => {
+
+find_button.addEventListener("click", async () => {
   current_town = town_input.value;
-  getWeatherTemp(current_town, current_lang);
+  weather_json = await fetch_weather(current_town, current_lang);
+  assign_data(weather_json)
   if (code === "404") {
     console.log('not finding');
   }
@@ -356,21 +351,22 @@ find_button.addEventListener("click", () => {
     console.log('finding...');
     console.log(code);
     history_save(town_input.value)
-    localStorage.setItem(1, town_input.value);
+    localStorage.setItem("last_town", town_input.value);
   }
   town_input.value = ""
 })
-town_input.addEventListener("keypress", () => {
+town_input.addEventListener("keypress", async () => {
   if (event.keyCode === 13) {
     current_town = town_input.value;
-    getWeatherTemp(current_town, current_lang);
+    
+    fetch_weather(current_town, current_lang);
     if (code === "404") {
       return 0
     }
     
     else if (code != "404") {
       history_save(town_input.value)
-      localStorage.setItem(1, town_input.value);
+      localStorage.setItem("last_town", town_input.value);
     }
     town_input.value = ""
 
@@ -390,8 +386,8 @@ expand.addEventListener("click", () => {
 
 language.addEventListener("change", () => {
   current_lang = language.value;
-  localStorage.setItem(3, current_lang);
-  getWeatherTemp(town_data.textContent, language.value)
+  localStorage.setItem('lang', current_lang);
+  fetch_weather(town_data.textContent, language.value)
   render_widget()
 })
 
@@ -462,15 +458,19 @@ function history_render(town_arr) {
 function history_enter() {
   town_history = document.querySelectorAll(".town_history")
   town_history.forEach((element => {
-  element.addEventListener('click', () => {
-    localStorage.setItem(1, element.textContent);
-    getWeatherTemp(element.textContent, current_lang);
+  element.addEventListener('click', async () => {
+    localStorage.setItem("last_town", element.textContent);
+    weather_json = await fetch_weather(element.textContent, current_lang);
+    assign_data(weather_json)
   })
 }))}
 
 // document.onload()
 render_widget()
-getWeatherTemp()
+weather_json = await fetch_weather()
+render_time(weather_json);
+assign_data(weather_json)
+
 
 
 // Сделать сайдбар с закреплёнными городами
