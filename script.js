@@ -21,7 +21,7 @@ let find_button = document.querySelector("#find-button")
 let town_input = document.querySelector("#town-input")
 let expand = document.querySelector(".expand")
 let add_town = document.querySelector("#add_townwidget")
-let loader = document.querySelector(".loader")
+let loader_container = document.querySelector(".loader-container")
 
 let temp_label = document.querySelector("#temp-label")
 let temp_feels_label  = document.querySelector("#temp-feels-label")
@@ -106,7 +106,7 @@ let temp_colors = {
 
 history_save("fake");
 
-loader.style.display = "block"
+loader_container.style.display = "flex"
 
 //РАЗДЕЛИТЬ fetch и присваивание 
 async function fetch_weather(town, lang) {
@@ -183,6 +183,8 @@ async function fetch_weather(town, lang) {
     weather_data_container.style.display = "none";
     none_text_label.textContent = "Nothing Found... Maybe try find to?";
   }
+  
+  loader_container.style.display = "none"
   return json
 }
   
@@ -282,7 +284,6 @@ function change_image(weather_name) {
   }
   
   
-// ПЕРЕДЕЛАТЬ ПОД fetch_weather
 async function render_widget() {
   let data;
   let temp_storage
@@ -295,7 +296,6 @@ async function render_widget() {
   console.log(temp_storage);
   for (const item of temp_storage) {
     data = await fetch_weather(item); 
-    console.log(data, 'data');
     town_widget_container.innerHTML +=
       `<div
         class="flex flex-row items-center relative fixed-town shadow-2xl p-4 h-28"

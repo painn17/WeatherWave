@@ -61,3 +61,19 @@
 #town_widget{
   transition: all ease 0.7s;
 }
+
+.loader {
+  height: 30px;
+  aspect-ratio: 6;
+  --c: #0000 64%,#169bcf 66% 98%,#0000 101%;
+  background:
+    radial-gradient(35% 146% at 50% 159%,var(--c)) 0 0,
+    radial-gradient(35% 146% at 50% -59%,var(--c)) 25% 100%;
+  background-size: calc(100%/3) 50%;
+  background-repeat: repeat-x;
+  clip-path: inset(0 100% 0 0);
+  animation: l2 0.7s infinite linear;
+}
+@keyframes l2{
+  90%,to {clip-path: inset(0)}
+}
