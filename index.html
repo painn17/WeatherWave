@@ -39,7 +39,7 @@
       <div class="loader z-50 mx-auto"></div>
     </div>
     <div
-      class="mx-auto h-[100vh] flex flex-col gap-2 items-center text-2xl font-bold"
+      class="mx-auto h-[100vh] flex flex-col justify-between gap-2 items-center text-2xl font-bold"
     >
       <div
         id="weather_container"
@@ -101,7 +101,9 @@
             </div>
             <hr class="my-2 w-full my-4 border-none rounded bg-blue-950 h-1" />
           </div>
-          <div class="mx-auto grid grid-cols-3 gap-10 flex-wrap justify-center">
+          <div
+            class="mx-auto grid grid-cols-3 gap-10 flex-wrap justify-center max-lg:grid-cols-2 max-lg:gap-5"
+          >
             <div
               id="weather_icon"
               class="weather_card bg-no-repeat bg-center w-min"
@@ -111,7 +113,10 @@
                 class="overflow-hidden text-ellipsis capitalize"
               ></span>
             </div>
-            <div id="temperature_container" class="weather_card col-span-2">
+            <div
+              id="temperature_container"
+              class="weather_card col-span-2 max-lg:-order-1"
+            >
               <div class="flex flex-row gap-8">
                 <div class="flex flex-row">
                   <span id="temp-label" class="">Temperature: </span>
@@ -147,15 +152,18 @@
           </div>
         </div>
       </div>
-    </div>
-    <div id="town_widget" class="w-full absolute bottom-0 flex flex-row">
-      <div
-        class="flex flex-col items-center justify-end min-w-20 mx-auto text-blue-950 text-2xl"
-      >
-        <span class="material-symbols-outlined expand"> expand_less </span>
-        <div class="flex flex-row rounded-xl widget_container hidden"></div>
+      <div id="town_widget" class="w-full flex flex-row">
+        <div
+          class="flex flex-col items-center justify-end min-w-20 mx-auto text-blue-950 text-2xl"
+        >
+          <span class="material-symbols-outlined expand"> expand_less </span>
+          <div
+            class="flex flex-row rounded-xl gap-2 widget_container hidden"
+          ></div>
+        </div>
       </div>
     </div>
+
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"
       integrity="sha512-uKQ39gEGiyUJl4AI6L+ekBdGKpGw4xJ55+xyJG7YFlJokPNYegn9KwQ3P8A7aFQAUtUsAQHep+d/lrGqrbPIDQ=="

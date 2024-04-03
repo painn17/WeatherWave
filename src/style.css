@@ -4,7 +4,7 @@
 
 @layer components{
    .weather_card{
-    @apply  flex flex-row gap-1 items-center h-32 rounded p-4 shadow-xl min-w-[100%] justify-center text-blue-950 text-2xl text-center
+    @apply  flex flex-row gap-1 bg-no-repeat items-center h-32 rounded p-4 shadow-xl min-w-[100%] justify-center text-blue-950 text-2xl max-lg:text-xl max-md:text-lg text-center
       }
     
     .history{
@@ -15,8 +15,18 @@
       @apply underline cursor-pointer text-gray-600 text-xs 
       /* after:content-[','] */
     }
+    
+    #fixed_town{
+      @apply  rounded shadow-md text-xl
+    }
 
     }
+
+
+
+#fixed_town{
+  background: linear-gradient(to top, #59a6be, white)
+}
 
 
 .plus{
@@ -31,12 +41,17 @@
 .minus{
   color: darksalmon;
   transition: all 0.5s ease;
+  position: absolute;
+  left:calc(50% - 15px);
+  z-index: -10;
+  display: none;
 }
 
 .fixed-town:hover .minus{
   opacity: 1;
   z-index: 10;
   transform: scale(125%);
+  display: block;
 }
 
 .fixed-town:hover .fixed-town-data{

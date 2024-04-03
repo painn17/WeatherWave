@@ -42,7 +42,6 @@ let town_history
 let code;
 let town_widget_container = document.querySelector(".widget_container")
 let fixed_town 
-let weather_icon;
 
 
 let weather_icons_day = [
@@ -97,7 +96,7 @@ let weather_icons_night = [
 let temp_colors = {
   base:"#e2e8f0",
   hot:"#ea580c",
-  medium:"#fb923c",
+  medium:"#fbce3c",
   cold:"#0284c7",
   very_cold:"#3c6dd7"
 }
@@ -197,12 +196,14 @@ function assign_data(json){
   let weather_code = json.weather[0].description; 
   let weather_name = json.weather[0].main; 
   // let town_timezone = json.timezone;
-  
-  
+  let time = render_time(json)
+  let image = time[3]
   
   town_history = document.querySelectorAll(".town_history")
   
   json.name ? find_label.textContent = json.name : find_label.textContent = last_town;
+  time_label.textContent = time[0]
+  date_label.textContent = time[1]
   town_data.textContent = json.name;
   weather_data.textContent = weather_code; 
   pressure_data.textContent = pressure;
@@ -210,83 +211,90 @@ function assign_data(json){
   temp_data.textContent = Math.round(temperature);
   wind_speed_data.textContent = (wind_speed);
   humidity_data.textContent = (humidity);
- 
+  weather_icon_label.style.background = image[1]
   
   
 
 
   if (temperature>=25){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.hot})`;
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}0%, ${temp_colors.hot}60%)`;
       }
-  else if(temperature>14 && temperature<25){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.medium})`;
+  else if(temperature>=15 && temperature<25){
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base} 0%, ${temp_colors.medium} 60%)`;
       }
   else if(temperature>4 && temperature<15){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.cold})`;
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}0%, ${temp_colors.cold}60%)`;
       }
   else if(temperature<=4){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}, ${temp_colors.very_cold})`;
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}0%, ${temp_colors.very_cold}60%)`;
       }
   
 }
 
-function save_town_widget(town) {
-  console.log(localStorage.getItem('widget'), 'widget on start');
-  let temp_storage = []
-  let widget = localStorage.getItem('widget')
-  if (town && widget != null && code != "404") {
-    if (!widget.includes(town)) {
-      console.log('pushing');
-      temp_storage.push(town)
-      temp_storage = temp_storage.concat(localStorage.getItem('widget').split(','))
-      console.log(temp_storage);
-      localStorage.setItem('widget', temp_storage);}
-      
-  }
-  else {
-    console.log('!');
-    localStorage.setItem('widget', '')
-    save_town_widget(town)    
-  }
-    
-    if (temp_storage.length > 5) {
-      temp_storage.shift();
-    }
-    console.log(localStorage.getItem('widget'), 'widget on end');
-  render_widget();
-}
+
 
 function render_time(json) {
   let now = moment().utcOffset(json.timezone / 60);
-    time_label.textContent = now.format("HH:mm");
-    date_label.textContent = now.format("YYYY.MM.DD");
-    time = +now.format("HH")
-    change_image(json.weather[0].main)
-  setTimeout(() => {
-      render_time(json);
-        }, 60000);
+    let time_data = now.format("HH:mm");
+    let date_data = now.format("YYYY.MM.DD");
+    let time = now.format("HH")
+    let image = change_image(json, time)
+  // setTimeout(() => { .weather[0].main
+  //     render_time(json);
+  //       }, 60000);
+  return [time_data, date_data, time, image]
       }
 
-function change_image(weather_name) {
+function change_image(json, time) {
+  let weather_icon
     if (time >= 18 || time <= 6) {
       weather_icon = weather_icons_night.filter((item) => {
-      return item.main === weather_name
+      return item.main === json.weather[0].main
       
       })
     }
     else if (time > 6 || time < 18) { 
       weather_icon = weather_icons_day.filter((item) => {
-      return item.main === weather_name
+      return item.main === json.weather[0].main
       
       })
-    }
-    weather_icon_label.style.background = `url(${weather_icon[0].src}) no-repeat center`
+  }
+    console.log(weather_icon);
+  let icon_url = `url('${weather_icon[0].src}')`
+  let icon_url_modified = `url('${weather_icon[0].src}') no-repeat center`
+     return [icon_url, icon_url_modified]
   }
   
-  
+  function save_town_widget(town) {
+    console.log(localStorage.getItem('widget'), 'widget on start');
+    let temp_storage = []
+    let widget = localStorage.getItem('widget')
+    if (town && widget != null && code != "404") {
+      if (!widget.includes(town)) {
+        console.log('pushing');
+        temp_storage.push(town)
+        temp_storage = temp_storage.concat(localStorage.getItem('widget').split(','))
+        console.log(temp_storage);
+        localStorage.setItem('widget', temp_storage);}
+        
+    }
+    else {
+      console.log('!');
+      localStorage.setItem('widget', '')
+      save_town_widget(town)    
+    }
+      
+      if (temp_storage.length > 5) {
+        temp_storage.shift();
+      }
+      console.log(localStorage.getItem('widget'), 'widget on end');
+    render_widget();
+  }
+
 async function render_widget() {
   let data;
-  let temp_storage
+  let temp_storage;
+  let time;
   town_widget_container.innerHTML = ""
   temp_storage = localStorage.getItem("widget").split(',');
   console.log(temp_storage);
@@ -296,21 +304,35 @@ async function render_widget() {
   console.log(temp_storage);
   for (const item of temp_storage) {
     data = await fetch_weather(item); 
+    time = render_time(data);
+    let image = time[3]
     town_widget_container.innerHTML +=
       `<div
-        class="flex flex-row items-center relative fixed-town shadow-2xl p-4 h-28"
+        class="flex flex-row items-center relative fixed-town shadow-2xl p-4 h-28 bg-no-repeat"
         id = "fixed_town"
+        style="background-image: ${image[0]}; background-repeat: no-repeat; background-position: center;"
       >
         <div
-          class="flex flex-col items-center rounded border fixed-town-data"
+          class="flex flex-col items-center fixed-town-data"
         >
           <div class="flex flex-row gap-2 items-center">
             <span class="fixed-town-name-data">${data.name}</span>
+            <span>|</span>
+            <span class="fixed-town-time-data">${time[0]}</span>
           </div>
           <div class="fixed-town-temp-data">${data.main.temp.toFixed()}°</div>
-          <div class="fixed-town-state-data capitalize">${data.weather[0].description}</div>
+          <div
+              id="weather_icon_widget"
+              class="bg-no-repeat bg-center w-min " 
+            >
+              <span
+                id="weather-label"
+                class="overflow-hidden text-ellipsis capitalize fixed-town-state-data">
+                ${data.weather[0].description}</span>
+            </div>
+          <div </div>
         </div>
-        <div class="absolute left-[calc(50%-12px)] -z-10 minus opacity-0">
+        <div class="minus opacity-0">
           <span class="material-symbols-outlined"> do_not_disturb_on </span>
         </div>
       </div>`;
@@ -384,10 +406,10 @@ expand.addEventListener("click", () => {
   }
 })
 
-language.addEventListener("change", () => {
+language.addEventListener("change", async () => {
   current_lang = language.value;
   localStorage.setItem('lang', current_lang);
-  fetch_weather(town_data.textContent, language.value)
+  assign_data(await fetch_weather(town_data.textContent, language.value))
   render_widget()
 })
 
