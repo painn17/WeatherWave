@@ -2,12 +2,13 @@ import { api } from "./api.js"; // your api key here
 
 let weather_json
 
+//data for first visit 
 let current_town = "Лондон"
-let current_lang = "ru";
+let current_lang = "en";
 
+// Weather Data Elements
 let weather_container = document.querySelector("#weather_container");
-let weather_card = document.querySelector("#weather_card")
-
+// let weather_card = document.querySelector("#weather_card")
 let weather_data =  document.querySelector("#weather-label")
 let pressure_data =  document.querySelector("#pressure")
 let temp_feels_data =  document.querySelector("#temp-feels")
@@ -16,34 +17,47 @@ let wind_speed_data =  document.querySelector("#wind-speed")
 let humidity_data =  document.querySelector("#humidity")
 let town_data = document.querySelector("#town")
 
+// Input/Search Elements
 let find_label = document.querySelector("#find")
 let find_button = document.querySelector("#find-button")
 let town_input = document.querySelector("#town-input")
 let expand = document.querySelector(".expand")
 let add_town = document.querySelector("#add_townwidget")
+
+//Loader
 let loader_container = document.querySelector(".loader-container")
 
+// Weather labels
 let temp_label = document.querySelector("#temp-label")
 let temp_feels_label  = document.querySelector("#temp-feels-label")
 let wind_speed_label = document.querySelector("#wind-speed-label")
 let pressure_label = document.querySelector("#pressure-label")
 let humidity_label = document.querySelector("#humidity-label")
-
 let none_text_label = document.querySelector(".none_text")
-
-let weather_data_container = document.querySelector(".weather_data")
 let weather_icon_label = document.querySelector("#weather_icon")
+
+// Weather Icon Elements
+let weather_data_container = document.querySelector(".weather_data")
+
+// General history container
+let history_label = document.querySelector(".history")
+
+// Time/Date for main weather Labels
 let time_label = document.querySelector("#time-label");
 let date_label = document.querySelector("#date-label");
-let history_label = document.querySelector(".history")
+
+//Language selector
 let language = document.querySelector("#language")
-let time;
-let town_history
+
+// Other Elements
+// let time;
+let town_history;
 let code;
 let town_widget_container = document.querySelector(".widget_container")
-let fixed_town 
+let fixed_town;
 
 
+//Icons for weather-label
 let weather_icons_day = [
   {
     main: "Clouds",
@@ -93,6 +107,7 @@ let weather_icons_night = [
   }
 ]
 
+//Colors for page background gradient
 let temp_colors = {
   base:"#e2e8f0",
   hot:"#ea580c",
@@ -102,12 +117,13 @@ let temp_colors = {
 }
 
 
-
+//History render* actually (temporary "костыль")
 history_save("fake");
 
+//Displaying loader before getting weather data
 loader_container.style.display = "flex"
 
-//РАЗДЕЛИТЬ fetch и присваивание 
+//Getting weather data and returnig it
 async function fetch_weather(town, lang) {
   code = '';
 
@@ -172,12 +188,12 @@ async function fetch_weather(town, lang) {
   }
   
 
-  console.log("жысон", json)
+  
 
   code = json.cod;
 
   if (code == "404") {
-    console.log(code);
+    ;
     find_label.textContent = "";
     weather_data_container.style.display = "none";
     none_text_label.textContent = "Nothing Found... Maybe try find to?";
@@ -187,6 +203,7 @@ async function fetch_weather(town, lang) {
   return json
 }
   
+//Assign data to labels/ color to bg accroding on temperature 
 function assign_data(json){
   let temperature = json.main.temp;
   let temp_feels = json.main.feels_like;
@@ -232,7 +249,7 @@ function assign_data(json){
 }
 
 
-
+// Receiving time and a picture depending on the received time and returning all of it (temporary "Костыль")
 function render_time(json) {
   let now = moment().utcOffset(json.timezone / 60);
     let time_data = now.format("HH:mm");
@@ -245,6 +262,7 @@ function render_time(json) {
   return [time_data, date_data, time, image]
       }
 
+// Checking time for town and returning image with modified/non-modified data (temporary "костыль", tailwind works sometimes with issues)
 function change_image(json, time) {
   let weather_icon
     if (time >= 18 || time <= 6) {
@@ -259,27 +277,28 @@ function change_image(json, time) {
       
       })
   }
-    console.log(weather_icon);
+    ;
   let icon_url = `url('${weather_icon[0].src}')`
   let icon_url_modified = `url('${weather_icon[0].src}') no-repeat center`
      return [icon_url, icon_url_modified]
   }
   
+  //Function to save current town to "bookmarks" 
   function save_town_widget(town) {
-    console.log(localStorage.getItem('widget'), 'widget on start');
+    ;
     let temp_storage = []
     let widget = localStorage.getItem('widget')
     if (town && widget != null && code != "404") {
       if (!widget.includes(town)) {
-        console.log('pushing');
+        ;
         temp_storage.push(town)
         temp_storage = temp_storage.concat(localStorage.getItem('widget').split(','))
-        console.log(temp_storage);
+        ;
         localStorage.setItem('widget', temp_storage);}
         
     }
     else {
-      console.log('!');
+      ;
       localStorage.setItem('widget', '')
       save_town_widget(town)    
     }
@@ -287,21 +306,22 @@ function change_image(json, time) {
       if (temp_storage.length > 5) {
         temp_storage.shift();
       }
-      console.log(localStorage.getItem('widget'), 'widget on end');
+      ;
     render_widget();
   }
 
+//renders "bookmarks" (Do I even need to put quotes on bookmarks? i can use "pinned", why i am so bad in english)
 async function render_widget() {
   let data;
   let temp_storage;
   let time;
   town_widget_container.innerHTML = ""
   temp_storage = localStorage.getItem("widget").split(',');
-  console.log(temp_storage);
+  ;
   if (temp_storage.includes("")) {
     temp_storage.pop()
   }
-  console.log(temp_storage);
+  ;
   for (const item of temp_storage) {
     data = await fetch_weather(item); 
     time = render_time(data);
@@ -338,13 +358,13 @@ async function render_widget() {
       </div>`;
   }
   fixed_town = document.querySelectorAll("#fixed_town");
-  console.log(fixed_town);
+  ;
   delete_widget()
 } 
 
-
+// Deletes selected pinned town
 function delete_widget() {
-  console.log("delete_widget");
+  ;
   fixed_town = document.querySelectorAll("#fixed_town");
   let temp_storage = localStorage.getItem('widget').split(',')
   if (temp_storage.includes("")) {
@@ -352,7 +372,7 @@ function delete_widget() {
   }
   fixed_town.forEach(element => {
     element.addEventListener("click", () => {
-      console.log('delete_widget');
+      ;
       let cityName = element.firstElementChild.firstElementChild.firstElementChild.textContent
       temp_storage.splice(temp_storage.indexOf(cityName), 1)
       localStorage.setItem('widget', temp_storage);
@@ -361,22 +381,23 @@ function delete_widget() {
   });
 }
 
-
+// event listener for find button, works with click and "enter" too
 find_button.addEventListener("click", async () => {
   current_town = town_input.value;
   weather_json = await fetch_weather(current_town, current_lang);
   assign_data(weather_json)
   if (code === "404") {
-    console.log('not finding');
+    ;
   }
   else if (code != "404") {
-    console.log('finding...');
-    console.log(code);
+    ;
+    ;
     history_save(town_input.value)
     localStorage.setItem("last_town", town_input.value);
   }
   town_input.value = ""
 })
+// on enter (maybe need to connect them)
 town_input.addEventListener("keypress", async () => {
   if (event.keyCode === 13) {
     current_town = town_input.value;
@@ -395,6 +416,7 @@ town_input.addEventListener("keypress", async () => {
   }
 })
 
+//event listener to expand the bookmarks
 expand.addEventListener("click", () => {
   if (town_widget_container.classList.contains("hidden")) {
     town_widget_container.classList.remove("hidden")
@@ -406,6 +428,7 @@ expand.addEventListener("click", () => {
   }
 })
 
+// event listener to change the language on page
 language.addEventListener("change", async () => {
   current_lang = language.value;
   localStorage.setItem('lang', current_lang);
@@ -413,15 +436,13 @@ language.addEventListener("change", async () => {
   render_widget()
 })
 
+// Event listener to Function to save current town to "bookmarks"
 add_town.addEventListener("click", () => {
   save_town_widget(town_data.textContent)
 })
 
-// town_history ? town_history.addEventListener("click", () => {
-  
-// }) : 0
-
-
+//function to save current town to history for fast navigation
+//works bad because of saving the wrong data (if you type somehing like "absdas", you getting nothing page (look for none_text_label), but history saves this "absdas")
 function history_save(town_name) {
 
   let history = localStorage.getItem("history")
@@ -435,7 +456,7 @@ function history_save(town_name) {
       }
       history_render(temp_storage);
     }
-    else{console.log("no storage, that's fake");}
+    else{;}
   }
 
   else if (history === null && code != "404") {
@@ -460,12 +481,9 @@ function history_save(town_name) {
     }
     localStorage.setItem('history', temp_storage);
     history_render(temp_storage);
-  }
-
+  }  }
   
-  }
-  
-
+//function that renders visited towns
 function history_render(town_arr) {
   let span;  
   history_label.innerHTML = "";
@@ -477,6 +495,7 @@ function history_render(town_arr) {
   history_enter();
 }
 
+//function that adds event listeners to all of history towns
 function history_enter() {
   town_history = document.querySelectorAll(".town_history")
   town_history.forEach((element => {
@@ -488,19 +507,23 @@ function history_enter() {
 }))}
 
 // document.onload()
+
+//rendering widget
 render_widget()
+//getting data wo weather_json
 weather_json = await fetch_weather()
+//renders time for weather_json town
 render_time(weather_json);
+//assigning data to labels depending of data of weather_json
 assign_data(weather_json)
 
+// TO DO ||
+//       \/
 
-
-// Сделать сайдбар с закреплёнными городами
-// История городов -- ready
-// Вывод времени часового пояса введённого города -- ready
-// Если город не введён, то сделать просто пустую страницу с поиском -- ready
-// Лоадинг скрин пока не зафетчено
-// Погода на несколько дней вперёд (если openweather позволяет)
-// Пофиксить баг с появлением в истории ошибочных названий городов 
-// Для виджета можно использовать функцию истории
-
+// Сделать сайдбар с закреплёнными городами/Make a sidebar with pinned cities -- ready
+// История городов/History of cities -- ready
+// Вывод времени часового пояса введённого города(и закреплённых)/Displaying the time zone of the entered city (and pinned ones) -- ready
+// Если город не введён/не найден, то показать пустую страницу с поиском и надписью /If the city is not entered/not found, then show a empty page with a search and the inscription -- ready
+// Лоадинг скрин пока не зафетчено /Loading screen while fetching -- ready
+// Погода на несколько дней вперёд (если openweather позволяет) /Weather for several days ahead (if openweather allows)
+// Пофиксить баг с появлением в истории ошибочных названий городов /Fix a bug with the appearance of incorrect city names in the history
