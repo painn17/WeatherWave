@@ -172,6 +172,7 @@ async function fetch_weather(town, lang) {
     if (!town && last_town) {
       response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${last_town}&appid=${api}&units=metric&lang=${last_lang}`);
       json = await response.json();
+      temperature_gradient(json.main.temp);
     }
     else if (town) {
       response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${town}&appid=${api}&units=metric&lang=${last_lang}`);
@@ -198,6 +199,7 @@ async function fetch_weather(town, lang) {
     weather_data_container.style.display = "none";
     none_text_label.textContent = "Nothing Found... Maybe try find to?";
   }
+  
   
   loader_container.style.display = "none"
   return json
@@ -233,19 +235,29 @@ function assign_data(json){
   
 
 
-  if (temperature>=25){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}0%, ${temp_colors.hot}60%)`;
-      }
-  else if(temperature>=15 && temperature<25){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base} 0%, ${temp_colors.medium} 60%)`;
-      }
-  else if(temperature>4 && temperature<15){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}0%, ${temp_colors.cold}60%)`;
-      }
-  else if(temperature<=4){
-    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base}0%, ${temp_colors.very_cold}60%)`;
-      }
+ 
   
+}
+
+function temperature_gradient(temperature) {
+  temperature = Math.round(temperature)
+  console.log("temperatrue function called", temperature);
+  if (temperature>=25){
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base} 0%, ${temp_colors.hot} 60%)`;
+    console.log("hot");
+      }
+  else if(temperature>=15 && temperature<=24){
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base} 0%, ${temp_colors.medium} 60%)`;
+    console.log("medium");  
+  }
+  else if(temperature>=5 && temperature<=14){
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base} 0%, ${temp_colors.cold} 60%)`;
+    console.log("cold");  
+  }
+  else if(temperature<=4){
+    weather_container.style.background = `linear-gradient(to top, ${temp_colors.base} 0%, ${temp_colors.very_cold} 60%)`;
+    console.log("very cold");  
+  }
 }
 
 
@@ -328,7 +340,7 @@ async function render_widget() {
     let image = time[3]
     town_widget_container.innerHTML +=
       `<div
-        class="flex flex-row items-center relative fixed-town shadow-2xl p-4 h-28 bg-no-repeat"
+        class="flex flex-row items-center relative fixed-town max-md:shadow-none shadow-2xl p-4 max-md:p-8 h-28 bg-no-repeat"
         id = "fixed_town"
         style="background-image: ${image[0]}; background-repeat: no-repeat; background-position: center;"
       >
@@ -383,15 +395,15 @@ function delete_widget() {
 
 // event listener for find button, works with click and "enter" too
 find_button.addEventListener("click", async () => {
-  current_town = town_input.value;
+  
   weather_json = await fetch_weather(current_town, current_lang);
   assign_data(weather_json)
   if (code === "404") {
-    ;
+
   }
   else if (code != "404") {
-    ;
-    ;
+    temperature_gradient(weather_json.main.temp)
+    current_town = town_input.value;
     history_save(town_input.value)
     localStorage.setItem("last_town", town_input.value);
   }
@@ -400,14 +412,16 @@ find_button.addEventListener("click", async () => {
 // on enter (maybe need to connect them)
 town_input.addEventListener("keypress", async () => {
   if (event.keyCode === 13) {
-    current_town = town_input.value;
     
-    fetch_weather(current_town, current_lang);
+    weather_json = await fetch_weather(current_town, current_lang);
+    assign_data(weather_json)
     if (code === "404") {
       return 0
     }
     
     else if (code != "404") {
+      temperature_gradient(weather_json.main.temp)
+      current_town = town_input.value;
       history_save(town_input.value)
       localStorage.setItem("last_town", town_input.value);
     }
@@ -420,11 +434,21 @@ town_input.addEventListener("keypress", async () => {
 expand.addEventListener("click", () => {
   if (town_widget_container.classList.contains("hidden")) {
     town_widget_container.classList.remove("hidden")
-    expand.style.transform = "rotate(360deg)"
+    if (window.innerWidth <= 1024) {
+      expand.style.transform = "rotate(270deg)"
+    }
+    else {
+      expand.style.transform = "rotate(360deg)"
+    }
   }
   else {
     town_widget_container.classList.add("hidden")
-    expand.style.transform = "rotate(180deg)"
+    if (window.innerWidth <= 1024) {
+      expand.style.transform = "rotate(90deg)"
+    }
+    else {
+      expand.style.transform = "rotate(360deg)"
+    }
   }
 })
 
@@ -469,15 +493,16 @@ function history_save(town_name) {
 }
 
   else if (history != null) {
-    
+    console.log("History not full/adding history");
     let temp_storage = []
     if (town_name && !localStorage.getItem("history").includes(town_name) && code != "404") {
       temp_storage.push(town_name)
+      
     }
     else{return 0}
     temp_storage = temp_storage.concat(localStorage.getItem("history").split(','))
     if (temp_storage.length > 5) {
-      temp_storage.shift();
+      temp_storage.pop();
     }
     localStorage.setItem('history', temp_storage);
     history_render(temp_storage);
@@ -489,7 +514,7 @@ function history_render(town_arr) {
   history_label.innerHTML = "";
   town_arr.forEach(element => {
     span = document.createElement("span");
-    span.innerHTML = `<span class="town_history">${element}</span>`
+    span.innerHTML = `<span class="town_history capitalize">${element}</span>`
     history_label.appendChild(span);
   });
   history_enter();
@@ -502,6 +527,7 @@ function history_enter() {
   element.addEventListener('click', async () => {
     localStorage.setItem("last_town", element.textContent);
     weather_json = await fetch_weather(element.textContent, current_lang);
+    temperature_gradient(weather_json.main.temp);
     assign_data(weather_json)
   })
 }))}
