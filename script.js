@@ -302,15 +302,12 @@ function change_image(json, time) {
     let widget = localStorage.getItem('widget')
     if (town && widget != null && code != "404") {
       if (!widget.includes(town)) {
-        ;
         temp_storage.push(town)
         temp_storage = temp_storage.concat(localStorage.getItem('widget').split(','))
-        ;
         localStorage.setItem('widget', temp_storage);}
         
     }
     else {
-      ;
       localStorage.setItem('widget', '')
       save_town_widget(town)    
     }
@@ -318,7 +315,6 @@ function change_image(json, time) {
       if (temp_storage.length > 5) {
         temp_storage.shift();
       }
-      ;
     render_widget();
   }
 
@@ -329,11 +325,9 @@ async function render_widget() {
   let time;
   town_widget_container.innerHTML = ""
   temp_storage = localStorage.getItem("widget").split(',');
-  ;
   if (temp_storage.includes("")) {
     temp_storage.pop()
   }
-  ;
   for (const item of temp_storage) {
     data = await fetch_weather(item); 
     time = render_time(data);
@@ -349,7 +343,6 @@ async function render_widget() {
         >
           <div class="flex flex-row gap-2 items-center">
             <span class="fixed-town-name-data">${data.name}</span>
-            <span>|</span>
             <span class="fixed-town-time-data">${time[0]}</span>
           </div>
           <div class="fixed-town-temp-data">${data.main.temp.toFixed()}°</div>
@@ -362,11 +355,15 @@ async function render_widget() {
                 class="overflow-hidden text-ellipsis capitalize fixed-town-state-data">
                 ${data.weather[0].description}</span>
             </div>
-          <div </div>
+            
+            </div>
+            <div class="minus mx-auto absolute ">
+            <span class="material-symbols-outlined">
+heart_minus
+</span>
+          </div>
         </div>
-        <div class="minus opacity-0">
-          <span class="material-symbols-outlined"> do_not_disturb_on </span>
-        </div>
+        
       </div>`;
   }
   fixed_town = document.querySelectorAll("#fixed_town");
