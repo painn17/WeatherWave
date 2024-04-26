@@ -130,8 +130,8 @@ async function fetch_weather(town, lang) {
   let response;
   let json;
 
-  let last_town = localStorage.getItem("last_town")
-  let last_lang = localStorage.getItem('lang');
+  let last_town = localStorage.getItem("last_town") || current_town
+  let last_lang = localStorage.getItem('lang') || current_lang
   
   let not_found = "Nothing Found... Maybe try find to?"
 
